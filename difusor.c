@@ -1,17 +1,11 @@
 /*
 ** Fichero: difusor.c
 ** Autores:
-** Jorge Mohedano Sánchez DNI 70943813Z
-** Saúl Matías Jiménez
+** Jorge Mohedano Sanchez DNI 70943813Z
+** Saul Matias Jimenez
 ** Usuario: i0943813
 */
 
-/*#include <stdio.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>*/
 #include <sys/types.h>   /* basic system data types */
 #include <sys/socket.h>  /* basic socket definitions */
 #include <sys/time.h>    /* timeval{} for select() */
@@ -29,9 +23,6 @@
 #include <sys/uio.h>             /* for iovec{} and readv/writev */
 #include <unistd.h>
 #include <sys/wait.h>
-
-
-
 #include <net/if.h>
 
 #define INTERFAZ "eth0"
@@ -54,7 +45,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in6 dir_difusor, dir_multicast;
     char mensaje[MAX];
 
-    sigset_t sigset;                // Señal SIGINT
+    sigset_t sigset;                // SeNal SIGINT
     struct sigaction s;
     s.sa_flags = 0;
     s.sa_handler = manejadoraSIGINT;
@@ -89,24 +80,24 @@ int main(int argc, char *argv[]) {
     mensaje, grupo, interfaz_str, puerto, saltos, intervalo);
     fflush(stdout);
 
-    // Registramos la señal para la manejadora SIGINT
+    // Registramos la seNal para la manejadora SIGINT
     if(sigfillset(&sigset) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigdelset(&sigset, SIGINT) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigfillset(&s.sa_mask) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigaction(SIGINT, &s, NULL) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
@@ -171,7 +162,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-// Manejadora señal SIGINT
+// Manejadora seNal SIGINT
 void manejadoraSIGINT (int s) {
     close(sUDP);    // Cerramos el socket UDP
     printf("\nSIGINT capturado\n");

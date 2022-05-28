@@ -1,8 +1,8 @@
 /*
 ** Fichero: suscriptor.c
 ** Autores:
-** Jorge Mohedano Sánchez DNI 70943813Z
-** Saúl Matías Jiménez
+** Jorge Mohedano Sanchez DNI 70943813Z
+** Saul Matias Jimenez
 ** Usuario: i0943813
 */
 
@@ -32,6 +32,7 @@
 void manejadoraSIGINT(int s);
 
 int sUDP;
+struct ipv6_mreq ipv6mreq;
 
 // ./suscriptor ff15::33 eth0 4343
 int main(int argc, char *argv[]) {
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
     char grupo[INET6_ADDRSTRLEN];
     //int sUDP;
     struct sockaddr_in6 dir_suscriptor;
-    struct ipv6_mreq ipv6mreq;
+    //struct ipv6_mreq ipv6mreq;
     char mensaje[MAX];
 
     int r;
@@ -52,7 +53,7 @@ int main(int argc, char *argv[]) {
     socklen_t len;
     len = sizeof(struct sockaddr_in6);
 
-    sigset_t sigset;                // Señal SIGINT
+    sigset_t sigset;                // SeNal SIGINT
     struct sigaction s;
     s.sa_flags = 0;
     s.sa_handler = manejadoraSIGINT;
@@ -82,37 +83,30 @@ int main(int argc, char *argv[]) {
     printf("- Grupo: %s\n- Interfaz: %s\n- Puerto: %d\n", grupo, interfaz_str, puerto);
     fflush(stdout);
 
-    // Registramos la señal para la manejadora SIGINT
+    // Registramos la seNal para la manejadora SIGINT
     if(sigfillset(&sigset) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigdelset(&sigset, SIGINT) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigfillset(&s.sa_mask) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     if(sigaction(SIGINT, &s, NULL) == -1) {
-        perror("Error al registrar la señal");
+        perror("Error al registrar la seNal");
         exit(1);
     }
 
     // Creamos socket UDP
     if((sUDP = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
         perror("Error al crear el socket");
-        exit(1);
-    }
-
-    // Permitimos varios suscriptores con SO_REUSEADDR
-    int permitir = 1;
-    if(setsockopt(sUDP, SOL_SOCKET, SO_REUSEADDR, &permitir, sizeof(permitir))==-1) {
-        perror("Error al activar SO_REUSEADDR (setsockopt)");
         exit(1);
     }
 
@@ -157,9 +151,16 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-// Manejadora señal SIGINT
+// Manejadora seNal SIGINT
 void manejadoraSIGINT (int s) {
-    close(sUDP);    // Cerramos el socket UDP
     printf("\nSIGINT capturado\n");
+
+    // Abandonamos el grupo multicast
+    if(setsockopt(sUDP, IPPROTO_IPV6, IPV6_DROP_MEMBERSHIP, &ipv6mreq, sizeof(ipv6mreq))==-1)
+    {
+        perror("Error al abandonar grupo multicast (setsockopt)");
+        exit(1);
+    }
+    close(sUDP);    // Cerramos el socket UDP
     exit(0);
 }
